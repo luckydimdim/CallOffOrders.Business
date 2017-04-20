@@ -107,7 +107,7 @@ namespace Cmas.BusinessLayers.CallOffOrders.Entities
         /// <summary>
         /// Ставки
         /// </summary>
-        public ICollection<Rate> Rates;
+        public List<Rate> Rates;
 
         public CallOffOrder()
         {

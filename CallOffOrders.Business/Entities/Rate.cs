@@ -4,13 +4,13 @@ namespace Cmas.BusinessLayers.CallOffOrders.Entities
 {
    public class Rate
     {
-        public int Id;
+        public string Id;
 
         public String Name;
 
         public bool IsRate;
 
-        public int? ParentId;
+        public string ParentId;
 
         /// <summary>
         /// Ставка

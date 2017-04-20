@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Cmas.BusinessLayers.CallOffOrders.CommandsContexts;
 using Cmas.BusinessLayers.CallOffOrders.Criteria;
@@ -27,7 +29,6 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
         public async Task<string> DeleteCallOffOrder(string id)
         {
-
             var context = new DeleteCallOffOrderCommandContext
             {
                 Id = id
@@ -45,10 +46,7 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
         public async Task<IEnumerable<CallOffOrder>> GetCallOffOrders(string contractId)
         {
-            var criteria = new FindByContractId();
-            criteria.ContractId = contractId;
-
-            return await _queryBuilder.For<Task<IEnumerable<CallOffOrder>>>().With(criteria);
+            return await _queryBuilder.For<Task<IEnumerable<CallOffOrder>>>().With(new FindByContractId(contractId));
         }
 
         public async Task<string> CreateCallOffOrder(CallOffOrder form)
@@ -61,8 +59,16 @@ namespace Cmas.BusinessLayers.CallOffOrders
             return context.Id;
         }
 
-        public async Task<string> UpdateCallOffOrder(string id, CallOffOrder form)
+        /// <summary>
+        /// Обновить наряд заказ
+        /// </summary>
+        /// <param name="callOffOrderId">ID наряд заказа</param>
+        /// <param name="form"></param>
+        /// <returns></returns>
+        public async Task<string> UpdateCallOffOrder(string callOffOrderId, CallOffOrder form)
         {
+            form.Id = callOffOrderId;
+
             var context = new UpdateCallOffOrderCommandContext
             {
                 Form = form
@@ -73,5 +79,69 @@ namespace Cmas.BusinessLayers.CallOffOrders
             return context.Form.Id;
         }
 
+        public async Task<Rate> AddRate(string callOffOrderId, Rate rate)
+        {
+            CallOffOrder callOffOrder = await _queryBuilder.For<Task<CallOffOrder>>()
+                .With(new FindById(callOffOrderId));
+
+            if (string.IsNullOrEmpty(rate.Id))
+            {
+                rate.Id = Guid.NewGuid().ToString();
+            }
+
+            if (rate.IsRate && !string.IsNullOrEmpty(rate.ParentId))
+            {
+                int groupIndex = -1;
+                int lastRateInGroupIndex = -1;
+
+
+                // вставляем ставку в определенную группу
+                for (int i = 0; i < callOffOrder.Rates.Count; i++)
+                {
+                    if (callOffOrder.Rates[i].Id == rate.ParentId)
+                    {
+                        groupIndex = i;
+                    }
+                    else if (callOffOrder.Rates[i].ParentId == rate.ParentId)
+                    {
+                        lastRateInGroupIndex = i;
+                    }
+                }
+
+                if (lastRateInGroupIndex >= 0)
+                {
+                    callOffOrder.Rates.Insert(lastRateInGroupIndex + 1, rate);
+                }
+                else if (groupIndex >= 0)
+                {
+                    callOffOrder.Rates.Insert(groupIndex + 1, rate);
+                }
+                else
+                {
+                    throw new ArgumentException("Cannot find group with id = " + rate.ParentId);
+                }
+            }
+            else
+            {
+                // вставляем в конец списка
+                callOffOrder.Rates.Add(rate);
+            }
+
+            await UpdateCallOffOrder(callOffOrderId, callOffOrder);
+
+            return rate;
+        }
+
+        public async Task<bool> DeleteRate(string callOffOrderId, string rateId)
+        {
+            CallOffOrder callOffOrder = await _queryBuilder.For<Task<CallOffOrder>>()
+                .With(new FindById(callOffOrderId));
+
+            var removesCount = callOffOrder.Rates.RemoveAll(r => r.Id == rateId);
+
+            await UpdateCallOffOrder(callOffOrderId, callOffOrder);
+
+            return removesCount > 0;
+        }
     }
 }
