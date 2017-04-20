@@ -132,16 +132,42 @@ namespace Cmas.BusinessLayers.CallOffOrders
             return rate;
         }
 
-        public async Task<bool> DeleteRate(string callOffOrderId, string rateId)
+        public async Task DeleteRate(string callOffOrderId, string rateId)
+        {
+            CallOffOrder callOffOrder = await _queryBuilder.For<Task<CallOffOrder>>()
+                .With(new FindById(callOffOrderId));
+            
+            var rateForRemove = callOffOrder.Rates.Where(r => r.Id == rateId).SingleOrDefault();
+
+            if (rateForRemove == null)
+                throw new ArgumentException(String.Format("Rate with id {0} not found", rateId));
+
+            var removesCount = callOffOrder.Rates.Remove(rateForRemove);
+
+            await UpdateCallOffOrder(callOffOrderId, callOffOrder);
+        }
+
+        public async Task UpdateRate(string callOffOrderId, Rate rate)
         {
             CallOffOrder callOffOrder = await _queryBuilder.For<Task<CallOffOrder>>()
                 .With(new FindById(callOffOrderId));
 
-            var removesCount = callOffOrder.Rates.RemoveAll(r => r.Id == rateId);
+            bool found = false;
+            for (int i = 0; i < callOffOrder.Rates.Count; i++)
+            {
+                if (callOffOrder.Rates[i].Id == rate.Id)
+                {
+                    callOffOrder.Rates[i] = rate;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                throw new ArgumentException(String.Format("Rate with id {0} not found", rate.Id));
 
             await UpdateCallOffOrder(callOffOrderId, callOffOrder);
-
-            return removesCount > 0;
+            
         }
     }
 }
