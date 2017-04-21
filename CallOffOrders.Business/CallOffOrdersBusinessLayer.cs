@@ -51,6 +51,10 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
         public async Task<string> CreateCallOffOrder(CallOffOrder form)
         {
+
+            form.UpdatedAt = DateTime.Now;
+            form.CreatedAt = DateTime.Now;
+
             var context = new CreateCallOffOrderCommandContext();
             context.Form = form;
 
