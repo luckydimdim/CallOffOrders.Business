@@ -14,6 +14,11 @@ namespace Cmas.BusinessLayers.CallOffOrders.Entities
         public string Id;
 
         /// <summary>
+        /// Номер ревизии
+        /// </summary>
+        public string Rev;
+
+        /// <summary>
         /// Идентификатор договора
         /// </summary>
         public string ContractId;
@@ -98,12 +103,6 @@ namespace Cmas.BusinessLayers.CallOffOrders.Entities
         /// </summary>
         public string MobDate;
 
-
-        /// <summary>
-        /// Шаблонные данные <имя параметра, значение>
-        /// </summary>
-        public Dictionary<string, object> TemplateData; 
-
         /// <summary>
         /// Ставки
         /// </summary>
@@ -113,7 +112,6 @@ namespace Cmas.BusinessLayers.CallOffOrders.Entities
         {
             Rates = new List<Rate>();
             TemplateSysName = "default";
-            TemplateData = new Dictionary<string, object>();
         }
 
     }

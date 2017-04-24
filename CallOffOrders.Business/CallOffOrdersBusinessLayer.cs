@@ -51,12 +51,11 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
         public async Task<string> CreateCallOffOrder(CallOffOrder form)
         {
-
             form.UpdatedAt = DateTime.Now;
             form.CreatedAt = DateTime.Now;
+            form.Id = null;
 
-            var context = new CreateCallOffOrderCommandContext();
-            context.Form = form;
+            var context = new CreateCallOffOrderCommandContext {Form = form};
 
             context = await _commandBuilder.Execute(context);
 
@@ -67,15 +66,17 @@ namespace Cmas.BusinessLayers.CallOffOrders
         /// Обновить наряд заказ
         /// </summary>
         /// <param name="callOffOrderId">ID наряд заказа</param>
-        /// <param name="form"></param>
+        /// <param name="order"></param>
         /// <returns></returns>
-        public async Task<string> UpdateCallOffOrder(string callOffOrderId, CallOffOrder form)
+        public async Task<string> UpdateCallOffOrder(string callOffOrderId, CallOffOrder order)
         {
-            form.Id = callOffOrderId;
+            order.Id = callOffOrderId;
+
+            order.UpdatedAt = DateTime.Now;
 
             var context = new UpdateCallOffOrderCommandContext
             {
-                Form = form
+                Form = order
             };
 
             context = await _commandBuilder.Execute(context);
@@ -140,7 +141,7 @@ namespace Cmas.BusinessLayers.CallOffOrders
         {
             CallOffOrder callOffOrder = await _queryBuilder.For<Task<CallOffOrder>>()
                 .With(new FindById(callOffOrderId));
-            
+
             var rateForRemove = callOffOrder.Rates.Where(r => r.Id == rateId).SingleOrDefault();
 
             if (rateForRemove == null)
@@ -171,7 +172,6 @@ namespace Cmas.BusinessLayers.CallOffOrders
                 throw new ArgumentException(String.Format("Rate with id {0} not found", rate.Id));
 
             await UpdateCallOffOrder(callOffOrderId, callOffOrder);
-            
         }
     }
 }
