@@ -51,8 +51,8 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
         public async Task<string> CreateCallOffOrder(CallOffOrder form)
         {
-            form.UpdatedAt = DateTime.Now;
-            form.CreatedAt = DateTime.Now;
+            form.UpdatedAt = DateTime.UtcNow;
+            form.CreatedAt = DateTime.UtcNow;
             form.Id = null;
 
             var context = new CreateCallOffOrderCommandContext {Form = form};
@@ -72,7 +72,7 @@ namespace Cmas.BusinessLayers.CallOffOrders
         {
             order.Id = callOffOrderId;
 
-            order.UpdatedAt = DateTime.Now;
+            order.UpdatedAt = DateTime.UtcNow;
 
             var context = new UpdateCallOffOrderCommandContext
             {
