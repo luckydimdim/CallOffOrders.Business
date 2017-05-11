@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Cmas.BusinessLayers.CallOffOrders.CommandsContexts;
 using Cmas.BusinessLayers.CallOffOrders.Criteria;
@@ -15,11 +16,13 @@ namespace Cmas.BusinessLayers.CallOffOrders
     {
         private readonly ICommandBuilder _commandBuilder;
         private readonly IQueryBuilder _queryBuilder;
+        private readonly ClaimsPrincipal _claimsPrincipal;
 
-        public CallOffOrdersBusinessLayer(ICommandBuilder commandBuilder, IQueryBuilder queryBuilder)
+        public CallOffOrdersBusinessLayer(IServiceProvider serviceProvider, ClaimsPrincipal claimsPrincipal)
         {
-            _commandBuilder = commandBuilder;
-            _queryBuilder = queryBuilder;
+            _claimsPrincipal = claimsPrincipal;
+            _commandBuilder = (ICommandBuilder)serviceProvider.GetService(typeof(ICommandBuilder));
+            _queryBuilder = (IQueryBuilder)serviceProvider.GetService(typeof(IQueryBuilder));
         }
 
         public async Task<CallOffOrder> GetCallOffOrder(string id)
