@@ -52,13 +52,27 @@ namespace Cmas.BusinessLayers.CallOffOrders
             return await _queryBuilder.For<Task<IEnumerable<CallOffOrder>>>().With(new FindByContractId(contractId));
         }
 
-        public async Task<string> CreateCallOffOrder(CallOffOrder form)
+        public async Task<string> CreateCallOffOrder(string contractId, string templateSysName, string currencySysName)
         {
-            form.UpdatedAt = DateTime.UtcNow;
-            form.CreatedAt = DateTime.UtcNow;
-            form.Id = null;
 
-            var context = new CreateCallOffOrderCommandContext {Form = form};
+            if (string.IsNullOrEmpty(contractId))
+                throw new ArgumentException("contractId");
+
+            if (string.IsNullOrEmpty(templateSysName))
+                throw new ArgumentException("templateSysName");
+
+            if (string.IsNullOrEmpty(currencySysName))
+                throw new ArgumentException("currencySysName");
+
+            var callOffOrder = new CallOffOrder();
+            callOffOrder.UpdatedAt = DateTime.UtcNow;
+            callOffOrder.CreatedAt = DateTime.UtcNow;
+            callOffOrder.ContractId = contractId;
+            callOffOrder.TemplateSysName = templateSysName;
+            callOffOrder.CurrencySysName = currencySysName;
+            callOffOrder.Id = null;
+
+            var context = new CreateCallOffOrderCommandContext { CallOffOrder = callOffOrder};
 
             context = await _commandBuilder.Execute(context);
 
@@ -73,6 +87,9 @@ namespace Cmas.BusinessLayers.CallOffOrders
         /// <returns></returns>
         public async Task<string> UpdateCallOffOrder(string callOffOrderId, CallOffOrder order)
         {
+            if (string.IsNullOrEmpty(callOffOrderId))
+                throw new ArgumentException("callOffOrderId");
+
             order.Id = callOffOrderId;
 
             order.UpdatedAt = DateTime.UtcNow;
@@ -89,6 +106,9 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
         public async Task<Rate> AddRate(string callOffOrderId, Rate rate)
         {
+            if (string.IsNullOrEmpty(callOffOrderId))
+                throw new ArgumentException("callOffOrderId");
+
             CallOffOrder callOffOrder = await _queryBuilder.For<Task<CallOffOrder>>()
                 .With(new FindById(callOffOrderId));
 
@@ -142,6 +162,12 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
         public async Task DeleteRate(string callOffOrderId, string rateId)
         {
+            if (string.IsNullOrEmpty(callOffOrderId))
+                throw new ArgumentException("callOffOrderId");
+
+            if (string.IsNullOrEmpty(rateId))
+                throw new ArgumentException("rateId");
+
             CallOffOrder callOffOrder = await _queryBuilder.For<Task<CallOffOrder>>()
                 .With(new FindById(callOffOrderId));
 
@@ -157,6 +183,10 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
         public async Task UpdateRate(string callOffOrderId, Rate rate)
         {
+
+            if (string.IsNullOrEmpty(callOffOrderId))
+                throw new ArgumentException("callOffOrderId");
+
             CallOffOrder callOffOrder = await _queryBuilder.For<Task<CallOffOrder>>()
                 .With(new FindById(callOffOrderId));
 

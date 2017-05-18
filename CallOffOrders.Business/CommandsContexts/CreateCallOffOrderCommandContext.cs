@@ -6,6 +6,6 @@ namespace Cmas.BusinessLayers.CallOffOrders.CommandsContexts
     public class CreateCallOffOrderCommandContext : ICommandContext
     {
         public string Id;
-        public CallOffOrder Form;
+        public CallOffOrder CallOffOrder;
     }
 }

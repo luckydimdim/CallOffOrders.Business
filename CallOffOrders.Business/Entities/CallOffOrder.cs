@@ -108,6 +108,11 @@ namespace Cmas.BusinessLayers.CallOffOrders.Entities
         /// </summary>
         public List<Rate> Rates;
 
+        /// <summary>
+        /// Валюта 
+        /// </summary>
+        public string CurrencySysName;
+
         public CallOffOrder()
         {
             Rates = new List<Rate>();
