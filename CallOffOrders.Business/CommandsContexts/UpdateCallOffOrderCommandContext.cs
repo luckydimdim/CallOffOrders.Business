@@ -5,6 +5,6 @@ namespace Cmas.BusinessLayers.CallOffOrders.CommandsContexts
 {
     public class UpdateCallOffOrderCommandContext : ICommandContext
     {
-        public CallOffOrder Form;
+        public CallOffOrder CallOffOrder;
     }
 }

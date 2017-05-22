@@ -21,40 +21,46 @@ namespace Cmas.BusinessLayers.CallOffOrders
         public CallOffOrdersBusinessLayer(IServiceProvider serviceProvider, ClaimsPrincipal claimsPrincipal)
         {
             _claimsPrincipal = claimsPrincipal;
-            _commandBuilder = (ICommandBuilder)serviceProvider.GetService(typeof(ICommandBuilder));
-            _queryBuilder = (IQueryBuilder)serviceProvider.GetService(typeof(IQueryBuilder));
+            _commandBuilder = (ICommandBuilder) serviceProvider.GetService(typeof(ICommandBuilder));
+            _queryBuilder = (IQueryBuilder) serviceProvider.GetService(typeof(IQueryBuilder));
         }
 
+        /// <summary>
+        /// Получить наряд заказ
+        /// </summary>
         public async Task<CallOffOrder> GetCallOffOrder(string id)
         {
             return await _queryBuilder.For<Task<CallOffOrder>>().With(new FindById(id));
         }
 
-        public async Task<string> DeleteCallOffOrder(string id)
-        {
-            var context = new DeleteCallOffOrderCommandContext
-            {
-                Id = id
-            };
-
-            context = await _commandBuilder.Execute(context);
-
-            return context.Id;
-        }
-
+        /// <summary>
+        /// Получить все наряд заказы
+        /// </summary>
         public async Task<IEnumerable<CallOffOrder>> GetCallOffOrders()
         {
             return await _queryBuilder.For<Task<IEnumerable<CallOffOrder>>>().With(new AllEntities());
         }
 
+        /// <summary>
+        /// Получить наряд заказы по договору
+        /// </summary>
         public async Task<IEnumerable<CallOffOrder>> GetCallOffOrders(string contractId)
         {
+            if (string.IsNullOrEmpty(contractId))
+                throw new ArgumentException("contractId");
+
             return await _queryBuilder.For<Task<IEnumerable<CallOffOrder>>>().With(new FindByContractId(contractId));
         }
 
+        /// <summary>
+        /// Создать наряд заказ
+        /// </summary>
+        /// <param name="contractId">ID договора</param>
+        /// <param name="templateSysName">Системное имя шаблона</param>
+        /// <param name="currencySysName">Валюта наряд заказа</param>
+        /// <returns></returns>
         public async Task<string> CreateCallOffOrder(string contractId, string templateSysName, string currencySysName)
         {
-
             if (string.IsNullOrEmpty(contractId))
                 throw new ArgumentException("contractId");
 
@@ -72,7 +78,22 @@ namespace Cmas.BusinessLayers.CallOffOrders
             callOffOrder.CurrencySysName = currencySysName;
             callOffOrder.Id = null;
 
-            var context = new CreateCallOffOrderCommandContext { CallOffOrder = callOffOrder};
+            var context = new CreateCallOffOrderCommandContext {CallOffOrder = callOffOrder};
+
+            context = await _commandBuilder.Execute(context);
+
+            return context.Id;
+        }
+
+        /// <summary>
+        /// Удалить наряд заказ
+        /// </summary>
+        public async Task<string> DeleteCallOffOrder(string id)
+        {
+            var context = new DeleteCallOffOrderCommandContext
+            {
+                Id = id
+            };
 
             context = await _commandBuilder.Execute(context);
 
@@ -82,9 +103,6 @@ namespace Cmas.BusinessLayers.CallOffOrders
         /// <summary>
         /// Обновить наряд заказ
         /// </summary>
-        /// <param name="callOffOrderId">ID наряд заказа</param>
-        /// <param name="order"></param>
-        /// <returns></returns>
         public async Task<string> UpdateCallOffOrder(string callOffOrderId, CallOffOrder order)
         {
             if (string.IsNullOrEmpty(callOffOrderId))
@@ -96,14 +114,17 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
             var context = new UpdateCallOffOrderCommandContext
             {
-                Form = order
+                CallOffOrder = order
             };
 
             context = await _commandBuilder.Execute(context);
 
-            return context.Form.Id;
+            return context.CallOffOrder.Id;
         }
 
+        /// <summary>
+        /// Добавить ставку/группу
+        /// </summary>
         public async Task<Rate> AddRate(string callOffOrderId, Rate rate)
         {
             if (string.IsNullOrEmpty(callOffOrderId))
@@ -160,6 +181,9 @@ namespace Cmas.BusinessLayers.CallOffOrders
             return rate;
         }
 
+        /// <summary>
+        /// Удалить ставку/группу
+        /// </summary>
         public async Task DeleteRate(string callOffOrderId, string rateId)
         {
             if (string.IsNullOrEmpty(callOffOrderId))
@@ -174,16 +198,18 @@ namespace Cmas.BusinessLayers.CallOffOrders
             var rateForRemove = callOffOrder.Rates.Where(r => r.Id == rateId).SingleOrDefault();
 
             if (rateForRemove == null)
-                throw new ArgumentException(String.Format("Rate with id {0} not found", rateId));
+                throw new Exception($"Rate with id {rateId} not found");
 
             var removesCount = callOffOrder.Rates.Remove(rateForRemove);
 
             await UpdateCallOffOrder(callOffOrderId, callOffOrder);
         }
 
+        /// <summary>
+        /// Обновить ставку/группу
+        /// </summary>
         public async Task UpdateRate(string callOffOrderId, Rate rate)
         {
-
             if (string.IsNullOrEmpty(callOffOrderId))
                 throw new ArgumentException("callOffOrderId");
 
@@ -202,7 +228,7 @@ namespace Cmas.BusinessLayers.CallOffOrders
             }
 
             if (!found)
-                throw new ArgumentException(String.Format("Rate with id {0} not found", rate.Id));
+                throw new Exception($"Rate with id {rate.Id} not found");
 
             await UpdateCallOffOrder(callOffOrderId, callOffOrder);
         }
