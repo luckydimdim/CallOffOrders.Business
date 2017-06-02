@@ -46,12 +46,12 @@ namespace Cmas.BusinessLayers.CallOffOrders.Entities
         /// <summary>
         /// Дата начала действия наряд-заказа
         /// </summary>
-        public DateTime? StartDate;
+        public DateTime StartDate;
 
         /// <summary>
         /// Дата окончания действия наряд-заказа
         /// </summary>
-        public DateTime? FinishDate;
+        public DateTime FinishDate;
 
         /// <summary>
         /// Наименование заказа (по сути - работы)

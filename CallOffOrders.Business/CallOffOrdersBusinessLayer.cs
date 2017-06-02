@@ -59,26 +59,13 @@ namespace Cmas.BusinessLayers.CallOffOrders
         /// <param name="templateSysName">Системное имя шаблона</param>
         /// <param name="currencySysName">Валюта наряд заказа</param>
         /// <returns></returns>
-        public async Task<string> CreateCallOffOrder(string contractId, string templateSysName, string currencySysName)
+        public async Task<string> CreateCallOffOrder(CallOffOrder сallOffOrder)
         {
-            if (string.IsNullOrEmpty(contractId))
-                throw new ArgumentException("contractId");
+            сallOffOrder.UpdatedAt = DateTime.UtcNow;
+            сallOffOrder.CreatedAt = DateTime.UtcNow;
+            сallOffOrder.Id = null;
 
-            if (string.IsNullOrEmpty(templateSysName))
-                throw new ArgumentException("templateSysName");
-
-            if (string.IsNullOrEmpty(currencySysName))
-                throw new ArgumentException("currencySysName");
-
-            var callOffOrder = new CallOffOrder();
-            callOffOrder.UpdatedAt = DateTime.UtcNow;
-            callOffOrder.CreatedAt = DateTime.UtcNow;
-            callOffOrder.ContractId = contractId;
-            callOffOrder.TemplateSysName = templateSysName;
-            callOffOrder.CurrencySysName = currencySysName;
-            callOffOrder.Id = null;
-
-            var context = new CreateCallOffOrderCommandContext {CallOffOrder = callOffOrder};
+            var context = new CreateCallOffOrderCommandContext {CallOffOrder = сallOffOrder };
 
             context = await _commandBuilder.Execute(context);
 
