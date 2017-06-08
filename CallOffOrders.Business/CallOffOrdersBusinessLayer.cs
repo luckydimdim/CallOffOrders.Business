@@ -219,5 +219,23 @@ namespace Cmas.BusinessLayers.CallOffOrders
 
             await UpdateCallOffOrder(callOffOrderId, callOffOrder);
         }
+
+        /// <summary>
+        /// Получить название ед. измерения ставки
+        /// </summary>
+        public static string GetRateUnitName(RateUnit rateUnit)
+        {
+            switch (rateUnit)
+            {
+                case RateUnit.Hour:
+                    return "Час";
+                case RateUnit.Day:
+                    return "День";
+                case RateUnit.Month:
+                    return "Месяц";
+                default:
+                    return "???";
+            }
+        }
     }
 }

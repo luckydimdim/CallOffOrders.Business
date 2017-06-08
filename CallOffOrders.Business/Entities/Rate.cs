@@ -20,6 +20,6 @@ namespace Cmas.BusinessLayers.CallOffOrders.Entities
         /// <summary>
         /// Ед. изм.
         /// </summary>
-        public String UnitName;
+        public RateUnit Unit;
     }
 }
