@@ -52,6 +52,18 @@ namespace Cmas.BusinessLayers.CallOffOrders
             return await _queryBuilder.For<Task<IEnumerable<CallOffOrder>>>().With(new FindByContractId(contractId));
         }
 
+
+        /// <summary>
+        /// Получить количество наряд заказов по договору
+        /// </summary>
+        public async Task<int> GetCallOffOrdersCount(string contractId)
+        {
+            if (string.IsNullOrEmpty(contractId))
+                throw new ArgumentException("contractId");
+
+            return await _queryBuilder.For<Task<int>>().With(new FindByContractId(contractId));
+        }
+
         /// <summary>
         /// Создать наряд заказ
         /// </summary>
